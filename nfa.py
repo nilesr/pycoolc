@@ -74,18 +74,7 @@ def union(a, b):
         r.add(e)
     return r
 
-# def add_epsilon_moves(s): # needs to be redone from scratch
-    # # new_s = set(s)
-    # new_s = set()
-    # for state in s:
-        # new_s.add(state)
-        # for possible_move in state.moves['ε']:
-            # #new_s.add(possible_move)
-            # #new_s = union(new_s, add_epsilon_moves(set([possible_move])))
-            # for m in add_epsilon_moves(set([possible_move])):
-                # new_s.add(m)
-    # return new_s
-def add_epsilon_moves(s, ignore=set()): # needs to be redone from scratch
+def add_epsilon_moves(s, ignore=set()):
     new_s = set(s)
     if len(ignore) == 0: ignore = new_s
     for state in s:
@@ -98,7 +87,7 @@ def add_epsilon_moves(s, ignore=set()): # needs to be redone from scratch
                 new_s.add(m)
     return new_s
 
-def compute(f, inp):
+def match(f, inp):
     states = set([f.start])
     idx = 0
     while idx < len(inp):
@@ -119,36 +108,6 @@ def compute(f, inp):
             return True
     return False
 
-full = concatenate(build_from_char('a'), build_from_char('b'))
-full2 = concatenate(iterate(build_from_char('a')), build_from_char('b'))
-
-
-# strings = ["aa", "ab", "ba", "bb", "aba", "aab", "aaab", "aaba", "b"]
-# for s in strings:
-    # print("String " + s + " " + ("matches" if compute(full, s) else "does not match") + " pattern " + "ab")
-# print()
-# for s in strings:
-    # print("String " + s + " " + ("matches" if compute(full2, s) else "does not match") + " pattern " + "a*b")
-
-#print(compute(full2, "aab"))
-def addr(node):
-    #return str(node).split()[3].replace(">", "").replace("0x", "_")
-    return str(node.id)
-def pmap(f):
-    print("digraph test {")
-    for node in f.nodes:
-        for char, move in node.moves.items():
-            if char == 'ε':
-                for m in move:
-                    print(addr(node) + " -> " + addr(m) + " [label=epsilon]")
-            else:
-                print(addr(node) + " -> " + addr(move) + " [label="+char+"]")
-        if node.terminal:
-            print(addr(node) + " -> " + addr(node) + " [label=terminal]")
-    print(addr(f.start) + " -> " + addr(f.start) + " [label=start]")
-    print("}")
-#pmap(full2)
-#pmap(iterate(a))
 
 def list_to_field(l):
     if len(l) == 0:
@@ -188,11 +147,45 @@ def build_from_regex(regex):
         else:
             to_concat.append(build_from_char(regex[i]))
     return list_to_field(to_concat)
+
+def addr(node):
+    return str(node.id)
+def pmap(f):
+    print("digraph test {")
+    for node in f.nodes:
+        for char, move in node.moves.items():
+            if char == 'ε':
+                for m in move:
+                    print(addr(node) + " -> " + addr(m) + " [label=epsilon]")
+            else:
+                print(addr(node) + " -> " + addr(move) + " [label="+char+"]")
+        if node.terminal:
+            print(addr(node) + " -> " + addr(node) + " [label=terminal]")
+    print(addr(f.start) + " -> " + addr(f.start) + " [label=start]")
+    print("}")
+
+
+# DEBUG
+
+# full = concatenate(build_from_char('a'), build_from_char('b'))
+# full2 = concatenate(iterate(build_from_char('a')), build_from_char('b'))
+
+# strings = ["aa", "ab", "ba", "bb", "aba", "aab", "aaab", "aaba", "b"]
+# for s in strings:
+    # print("String " + s + " " + ("matches" if match(full, s) else "does not match") + " pattern " + "ab")
+# print()
+# for s in strings:
+    # print("String " + s + " " + ("matches" if match(full2, s) else "does not match") + " pattern " + "a*b")
+
+#print(match(full2, "aab"))
+#pmap(full2)
+#pmap(iterate(a))
+
 #pmap(build_from_regex("ab(c1+2d(e*f)d)*e"))
 #pmap(either(build_from_char('a'), build_from_char('b')))
 # x = build_from_regex("(1+0)*1")
 # #pmap(x)
 # for s in ["101", "111110", "11001", "1", "0"]:
-    # print(compute(x, s))
-x = build_from_regex("a+b+c")
-pmap(x)
+    # print(match(x, s))
+# x = build_from_regex("a+b+c")
+# pmap(x)
