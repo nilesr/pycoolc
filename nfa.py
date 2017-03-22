@@ -67,7 +67,7 @@ def either(a, b):
     new_start.moves['ε'].add(b.start)
     new_end = nfa()
     new_end.terminal = True
-    for node in union(a.nodes, b.nodes):
+    for node in (a.nodes | b.nodes):
         if node.terminal:
             node.terminal = False
             node.moves['ε'].add(new_end)
@@ -210,7 +210,7 @@ def pmap(f): # prints out the passed field in a way that dot can compile to an s
 #pmap(compile("ab(c1+2d(e*f)d)*e"))
 #pmap(either(build_from_char('a'), build_from_char('b')))
 # x = compile("(1+0)*1")
-# #pmap(x)
+# pmap(x)
 # for s in ["101", "111110", "11001", "1", "0"]:
     # print(match(x, s))
 # x = compile("a+b+c")
