@@ -90,7 +90,7 @@ def concatenate(a, b):
     return f
 # takes a set of nodes, returns a set of those nodes and all nodes connected to those nodes by epsilon moves
 # uses an ignore list for its recursive calls so it won't loop infinitely
-def add_epsilon_moves(s, ignore=False):
+def epsilon_closure(s, ignore=False):
     new_s = set(s) # we can't modify the set we're iterating over or the program will explode, so we return a new set instead of modifying s
     if not ignore:
         ignore = new_s
@@ -98,7 +98,7 @@ def add_epsilon_moves(s, ignore=False):
         for possible_move in state.moves['ε']: # for all possible ε moves in all the moves we're expanding over, recurse
             if possible_move in ignore:
                 continue
-            for m in add_epsilon_moves(set([possible_move]),(set([possible_move]) | ignore)):
+            for m in epsilon_closure(set([possible_move]),(set([possible_move]) | ignore)):
                 new_s.add(m)
     return new_s
 
@@ -107,7 +107,7 @@ def match(f, inp):
     states = set([f.start])
     idx = 0
     while idx < len(inp):
-        states = add_epsilon_moves(states) # expand into epsilon connected states
+        states = epsilon_closure(states) # expand into epsilon connected states
         new_states = set() # the states we will be in after we consume the input
         c = inp[idx] # the character we're taking in right now
         for state in states:
