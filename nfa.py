@@ -139,6 +139,19 @@ def list_to_field(l):
     for k in l[1:]:
         final = concatenate(final, k)
     return final
+def zero_or_more(f):
+    f2 = field()
+    f2.nodes = f.nodes
+    f2.start = f.start
+    n = nfa()
+    n.terminal = True
+    for k in f.nodes:
+        if k.terminal:
+            k.terminal = False
+            k.moves['ε'].add(n)
+    f2.nodes.add(n)
+    f2.start.moves['ε'].add(n)
+    return f2
 def compile(regex):
     to_concat = [] # empty list of things to concatenate
     inparens = False # parenthesis parsing stuff
@@ -161,9 +174,13 @@ def compile(regex):
             to_concat[-1] = iterate(to_concat[-1])
         elif regex[i] == "+": # kind of a hack and gives + the highest possible operator precedence
             return either(list_to_field(to_concat), compile(regex[i+1:]))
+        elif regex[i] == "?": # COMPLETELY UNTESTED
+            to_concat.append(zero_or_more(to_concat[-1]))
         else: # if we just found a regular character, add it to the stuff to concatenate
             to_concat.append(build_from_char(regex[i]))
-    return list_to_field(to_concat)
+    ret = list_to_field(to_concat)
+    ret.orig = regex
+    return ret
 
 def addr(node): # this used to be a hack that would print the memory address of the node starting with a _ so graphviz didn't split it at the end of the number
     return str(node.id)
@@ -206,6 +223,7 @@ def pmap(f): # prints out the passed field in a way that dot can compile to an s
 
 #print(match(full2, "aab"))
 #pmap(full2)
+#pmap(zero_or_more(build_from_char("a")))
 
 #pmap(compile("ab(c1+2d(e*f)d)*e"))
 #pmap(either(build_from_char('a'), build_from_char('b')))
