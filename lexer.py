@@ -10,7 +10,7 @@ whitespace = whitespace_no_newline + "+\n"
 any_char = digit + "+" + letter + "+" + whitespace
 any_string = "("+any_char+")*"
 
-integer = nfa.compile("(" + digit + ")*") # may not be negative because my "-?" at the beginning broke everything
+integer = nfa.compile("-?(" + digit + ")(" + digit + ")*")
 integer.type = "integer"
 identifier = nfa.compile("(" + letter + ")(" + letter + "+" + digit + ")*") # letter followed by any number of letters or digits
 identifier.type = "identifier"
@@ -46,7 +46,7 @@ test_data = """
 if x = y then
     x <- 10;
 else
-    x <- x - (y * 20); -- comment test
+    x <- x - (y * -1); -- comment test
     print("string literal test");
 fi
 """
@@ -68,7 +68,7 @@ def lex(data):
     # process = subprocess.Popen(["gpp", "+c", "--", "\\n"], stdin = subprocess.PIPE, stdout = subprocess.PIPE)
     # data = process.communicate(input=data.encode("utf-8"))[0].decode("utf-8")
     # whichever of these is the first to match a substring of the text is used to create the token
-    priority_order = [whitespace_nfa, comment, parens, bracket, brace, mathbinop, mathunop, unop, semicolon, keyword, assign, relop, integer, string, identifier]
+    priority_order = [whitespace_nfa, comment, integer, parens, bracket, brace, mathbinop, mathunop, unop, semicolon, keyword, assign, relop, string, identifier]
     done = []
     data_ptr = 0
     while data_ptr < len(data): # loop until we've read the whole input string

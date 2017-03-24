@@ -141,7 +141,7 @@ def list_to_field(l):
     for k in l[1:]:
         final = concatenate(final, k)
     return final
-def zero_or_more(f):
+def zero_or_one(f):
     f2 = field()
     f2.nodes = f.nodes
     f2.start = f.start
@@ -179,7 +179,7 @@ def compile(regex):
             ret.orig = regex
             return ret
         elif regex[i] == "?": # COMPLETELY UNTESTED
-            to_concat.append(zero_or_more(to_concat[-1]))
+            to_concat[-1] = zero_or_one(to_concat[-1])
         else: # if we just found a regular character, add it to the stuff to concatenate
             to_concat.append(build_from_char(regex[i]))
     ret = list_to_field(to_concat)
@@ -227,7 +227,7 @@ def pmap(f): # prints out the passed field in a way that dot can compile to an s
 
 #print(match(full2, "aab"))
 #pmap(full2)
-#pmap(zero_or_more(build_from_char("a")))
+#pmap(zero_or_one(build_from_char("a")))
 
 #pmap(compile("ab(c1+2d(e*f)d)*e"))
 #pmap(either(build_from_char('a'), build_from_char('b')))
