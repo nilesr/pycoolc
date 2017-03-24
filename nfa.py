@@ -4,6 +4,7 @@ class field(): # a "field" has a list of nodes and a starting node, that's it
     def __init__(self):
         self.nodes = set()
         self.start = False
+        self.orig = "not compiled"
 # a node is either terminal (accepting) or not, and it has a list of possible moves. 
 # the moves are usually indexed by a character, so my_nfa.moves['a'] will return another nfa
 # ε is special because there can be more than one ε moves, and they don't consume a character of input
@@ -119,6 +120,7 @@ def match(f, inp):
         if len(states) == 0: # if there are no states, we can't possibly end up at a terminal state so just stop reading
             return False
     # now we've consumed all the input. If any of the states we are in are accepting states, it matched, otherwise return false
+    states = epsilon_closure(states) # expand into epsilon connected states
     for state in states:
         if state.terminal:
             return True
@@ -173,7 +175,9 @@ def compile(regex):
         elif regex[i] == "*": # if we find a *, iterate the last thing on the stack, which might have been a subregex (and that's ok)
             to_concat[-1] = iterate(to_concat[-1])
         elif regex[i] == "+": # kind of a hack and gives + the highest possible operator precedence
-            return either(list_to_field(to_concat), compile(regex[i+1:]))
+            ret = either(list_to_field(to_concat), compile(regex[i+1:]))
+            ret.orig = regex
+            return ret
         elif regex[i] == "?": # COMPLETELY UNTESTED
             to_concat.append(zero_or_more(to_concat[-1]))
         else: # if we just found a regular character, add it to the stuff to concatenate
