@@ -22,7 +22,7 @@ keyword = nfa.compile("+".join(["class", "else", "false", "fi", "if", "in", "inh
 keyword.type = "keyword"
 assign = nfa.compile("<-")
 assign.type = "assign"
-relop = nfa.compile("+".join(["<", "<=", ">", ">=", "=", "<>"]))
+relop = nfa.compile("+".join(["<", "<=", ">", ">=", "=", "<>", "!="]))
 relop.type = "relop"
 semicolon = nfa.compile(";")
 semicolon.type = "semicolon"
@@ -30,13 +30,23 @@ whitespace_nfa = nfa.compile(whitespace)
 whitespace_nfa.type = "whitespace_nfa"
 parens = nfa.either(nfa.build_from_char("("), nfa.build_from_char(")"))
 parens.type = "parens"
+mathbinop = nfa.either(nfa.either(nfa.compile("-+/"), nfa.build_from_char("+")), nfa.build_from_char("*"))
+mathbinop.type = "mathbinop"
+mathunop = nfa.compile("~")
+mathunop.type = "mathunop"
+brace = nfa.compile("{+}")
+brace.type = "brace"
+bracket = nfa.compile("[+]")
+bracket.type = "bracket"
+unop = nfa.compile("!")
+unop.type = "unop"
 
 
 test_data = """
 if x = y then
     x <- 10;
 else
-    x <- 20; -- comment
+    x <- x - (y * 20); -- comment test
     print("string literal test");
 fi
 """
@@ -52,35 +62,39 @@ class token():
         self.matched_string = ""
         self.type = False
 
+# returns a list of tokens in the order they appeared in the input string
 def lex(data):
     # import subprocess
     # process = subprocess.Popen(["gpp", "+c", "--", "\\n"], stdin = subprocess.PIPE, stdout = subprocess.PIPE)
     # data = process.communicate(input=data.encode("utf-8"))[0].decode("utf-8")
-    priority_order = [whitespace_nfa, comment, parens, semicolon, keyword, assign, relop, integer, string, identifier]
+    # whichever of these is the first to match a substring of the text is used to create the token
+    priority_order = [whitespace_nfa, comment, parens, bracket, brace, mathbinop, mathunop, unop, semicolon, keyword, assign, relop, integer, string, identifier]
     done = []
     data_ptr = 0
-    while data_ptr < len(data):
+    while data_ptr < len(data): # loop until we've read the whole input string
         one_matched = False
-        for regex in priority_order:
-            data_end = len(data)
+        # start by trying to match the whole rest of the input string, and chop one character off the end until there are no characters left. If none of those substrings matched, move on to the next regex in the priority order
+        for regex in priority_order: # starting with the highest priority regex
+            data_end = len(data) # MAXIMUM MUNCH - literally the largest lookahead possible
+            this_regex_matched = False
             while data_end - data_ptr > 0:
                 considering = data[data_ptr:data_end]
-                #print("Considering " + considering.replace("\n", "\\n"))
-                #print("matching '" + considering + "' against regex '" + regex.orig + "'")
-                if nfa.match(regex, considering):
-                    #print("Matched " + considering)
-                    data_ptr += len(considering)
-                    t = token()
+                if nfa.match(regex, considering): # If this regex matched the substring
+                    data_ptr += len(considering) # add the length of what it matched to where we'll start reading the next token from
+                    t = token() # construct a token and add it to the result list
                     t.matched_string = considering
                     t.type = regex.type
                     done.append(t)
+                    one_matched = True # don't die
                     this_regex_matched = True
-                    one_matched = True
                     break
                 data_end -= 1
+            if this_regex_matched:
+                break
         if not one_matched:
-            print("Nothing matched '" + considering + "', bailing out")
+            print("Nothing matched '" + considering + "', bailing out") # if we encounter something that we can't parse, just die
             return []
     return done
+# debug
 for tkn in lex(test_data):
-    if tkn.type != "whitespace_nfa": print("token was '" + tkn.matched_string + "' of type " + tkn.type)
+    if tkn.type != "whitespace_nfa": print("token was '" + tkn.matched_string.replace("\n", "\\n") + "' of type " + tkn.type)
