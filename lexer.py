@@ -5,7 +5,8 @@ digit = '+'.join("0123456789")
 letter = '+'.join(string.ascii_letters) + "+_"
 upper = '+'.join(string.ascii_uppercase)
 lower = '+'.join(string.ascii_lowercase)
-whitespace = " +\n+\f+\r+\t+\v"
+whitespace_no_newline = " +\f+\r+\t+\v"
+whitespace = whitespace_no_newline + "+\n"
 any_char = digit + "+" + letter + "+" + whitespace
 any_string = "("+any_char+")*"
 
@@ -15,8 +16,8 @@ identifier = nfa.compile("(" + letter + ")(" + letter + "+" + digit + ")*") # le
 identifier.type = "identifier"
 string = nfa.compile("(\"(" + any_string + ")\")+('("+any_string+")')")
 string.type = "string"
-# comment = nfa.compile("--(" + any_char + ")*\n") # BROKEN AF
-# comment.type = "comment"
+comment = nfa.compile("--(" + digit + "+" + letter + "+" + whitespace_no_newline + ")*\n") # Untested
+comment.type = "comment"
 keyword = nfa.compile("+".join(["class", "else", "false", "fi", "if", "in", "inherits", "isvoid", "let", "loop", "pool", "then", "while", "case", "esac", "new", "of", "not", "true"]))
 keyword.type = "keyword"
 assign = nfa.compile("<-")
@@ -52,10 +53,10 @@ class token():
         self.type = False
 
 def lex(data):
-    import subprocess
-    process = subprocess.Popen(["gpp", "+c", "--", "\\n"], stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-    data = process.communicate(input=data.encode("utf-8"))[0].decode("utf-8")
-    priority_order = [whitespace_nfa, parens, semicolon, keyword, assign, relop, integer, string, identifier]
+    # import subprocess
+    # process = subprocess.Popen(["gpp", "+c", "--", "\\n"], stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+    # data = process.communicate(input=data.encode("utf-8"))[0].decode("utf-8")
+    priority_order = [whitespace_nfa, comment, parens, semicolon, keyword, assign, relop, integer, string, identifier]
     done = []
     data_ptr = 0
     while data_ptr < len(data):
