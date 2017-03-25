@@ -66,3 +66,96 @@ grammar = {
 
 p = parser(grammar)
 print(p.parse("(10 + (99 * 44))*3 + 1231"))
+
+
+import sys
+sys.exit(0)
+
+
+
+grammar = {
+        "program": [
+           [["nonterminal", "class"], ["terminal", ["semicolon"]], ["nonterminal", "program"]],
+           [["nonterminal", "class"]],
+        ],
+        "class": [
+            [
+                ["terminal", ["keyword", "class"]],
+                ["terminal", ["identifier"]],
+                ["terminal", ["keyword", "inherits"]],
+                ["terminal", ["identifier"]],
+                ["terminal", ["braces", "{"]],
+                ["nonterminal", "feature;+"],
+                ["terminal", ["braces", "}"]]
+            ],
+            [
+                ["terminal", ["keyword", "class"]],
+                ["terminal", ["identifier"]],
+                ["terminal", ["braces", "{"]],
+                ["nonterminal", "feature;+"],
+                ["terminal", ["braces", "}"]]
+            ]
+        ],
+        "feature;+": [
+            [
+                ["terminal", ["semicolon"]]
+            ],
+            [
+                ["nonterminal", "feature"],
+                ["terminal", ["semicolon"]],
+                ["nonterminal", ["feature;+"]]
+            ]
+        ],
+        "feature": [
+            [
+                ["terminal", ["identifier"]],
+                ["terminal", ["parens", "("]],
+                ["terminal", ["parens", ")"]],
+                ["terminal", ["colon"]],
+                ["terminal", ["identifier"]],
+                ["terminal", ["braces", "{"]],
+                ["nonterminal", "expr"],
+                ["terminal", ["braces", "}"]]
+            ],
+            [
+                ["terminal", ["identifier"]],
+                ["terminal", ["parens", "("]],
+                ["nonterminal", "formal,+"],
+                ["terminal", ["parens", ")"]],
+                ["terminal", ["colon"]],
+                ["terminal", ["identifier"]],
+                ["terminal", ["braces", "{"]],
+                ["nonterminal", "expr"],
+                ["terminal", ["braces", "}"]]
+            ],
+            [
+                ["terminal", ["identifier"]],
+                ["terminal", ["colon"]],
+                ["terminal", ["identifier"]],
+                ["terminal", ["assign"]],
+                ["nonterminal", "expr"],
+            ],
+            [
+                ["terminal", ["identifier"]],
+                ["terminal", ["colon"]],
+                ["terminal", ["identifier"]],
+            ]
+        ],
+        "formal": [
+            [
+                ["terminal", ["identifier"]],
+                ["terminal", ["colon"]],
+                ["terminal", ["identifier"]],
+            ]
+        ],
+        "formal,+": [
+            [
+                ["nonterminal", "formal"],
+                ["terminal", ["comma"]],
+                ["nonterminal", "formal,+"]
+            ],
+            [
+                ["nonterminal", "formal"]
+            ]
+        ]
+}

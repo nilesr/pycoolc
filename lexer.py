@@ -26,6 +26,10 @@ relop = nfa.compile("+".join(["<", "<=", ">", ">=", "=", "<>", "!="]))
 relop.type = "relop"
 semicolon = nfa.compile(";")
 semicolon.type = "semicolon"
+colon = nfa.compile(":")
+colon.type = "colon"
+comma = nfa.compile(",")
+comma.type = "comma"
 whitespace_nfa = nfa.compile(whitespace)
 whitespace_nfa.type = "whitespace_nfa"
 parens = nfa.either(nfa.build_from_char("("), nfa.build_from_char(")"))
@@ -68,7 +72,7 @@ def lex(data):
     # process = subprocess.Popen(["gpp", "+c", "--", "\\n"], stdin = subprocess.PIPE, stdout = subprocess.PIPE)
     # data = process.communicate(input=data.encode("utf-8"))[0].decode("utf-8")
     # whichever of these is the first to match a substring of the text is used to create the token
-    priority_order = [whitespace_nfa, comment, integer, parens, bracket, brace, mathbinop, mathunop, unop, semicolon, keyword, assign, relop, string, identifier]
+    priority_order = [whitespace_nfa, comment, integer, parens, bracket, brace, mathbinop, mathunop, unop, semicolon, colon, comma, keyword, assign, relop, string, identifier]
     done = []
     data_ptr = 0
     while data_ptr < len(data): # loop until we've read the whole input string
