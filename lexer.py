@@ -6,7 +6,7 @@ letter = '+'.join(string.ascii_letters) + "+_"
 upper = '+'.join(string.ascii_uppercase)
 lower = '+'.join(string.ascii_lowercase)
 whitespace_no_newline = " +\f+\r+\t+\v"
-whitespace = whitespace_no_newline + "+\n"
+whitespace = "(" + whitespace_no_newline + "+\n)*"
 any_char = digit + "+" + letter + "+" + whitespace
 any_string = "("+any_char+")*"
 
