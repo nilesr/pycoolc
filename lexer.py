@@ -96,5 +96,5 @@ def lex(data):
             return []
     return done
 # debug
-for tkn in lex(test_data):
-    if tkn.type != "whitespace_nfa": print("token was '" + tkn.matched_string.replace("\n", "\\n") + "' of type " + tkn.type)
+# for tkn in lex(test_data):
+    # if tkn.type != "whitespace_nfa": print("token was '" + tkn.matched_string.replace("\n", "\\n") + "' of type " + tkn.type)
