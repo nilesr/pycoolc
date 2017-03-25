@@ -126,7 +126,7 @@ def match(f, inp):
             return True
     return False
 
-
+# takes a list of fields and returns a new field with all of the lists fields concatenated together
 def list_to_field(l):
     if len(l) == 0: # this base case shouldn't be hit unless you have an empty regex or start your regex with a + or something
         # all it does is make a field with one terminal node in it
@@ -141,6 +141,11 @@ def list_to_field(l):
     for k in l[1:]:
         final = concatenate(final, k)
     return final
+
+# used for ?
+# start -> (passed field) --ε--> (node) <- that one is terminal
+#           \_______________ε____/
+# adds an ε move to the passed field's start node to the new end node, as well as adding it to each of passed field's terminal nodes
 def zero_or_one(f):
     f2 = field()
     f2.nodes = f.nodes
@@ -154,6 +159,7 @@ def zero_or_one(f):
     f2.nodes.add(n)
     f2.start.moves['ε'].add(n)
     return f2
+# takes a regex like "ab(cd*)+f" and makes an nfa field out of it
 def compile(regex):
     to_concat = [] # empty list of things to concatenate
     inparens = False # parenthesis parsing stuff
@@ -178,7 +184,7 @@ def compile(regex):
             ret = either(list_to_field(to_concat), compile(regex[i+1:]))
             ret.orig = regex
             return ret
-        elif regex[i] == "?": # COMPLETELY UNTESTED
+        elif regex[i] == "?":
             to_concat[-1] = zero_or_one(to_concat[-1])
         else: # if we just found a regular character, add it to the stuff to concatenate
             to_concat.append(build_from_char(regex[i]))
