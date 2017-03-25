@@ -8,6 +8,7 @@ class parser():
     def __init__(self, grammar):
         self.grammar = grammar
     def parse(self, inp):
+        print("Parsing input " + inp)
         self.tokens = lexer.lex(inp)
         self.tokens = [t for t in self.tokens if not t.type == "whitespace_nfa"]
         self.tokens_ptr = 0
@@ -16,7 +17,7 @@ class parser():
     def term(self, t_type, literal = False):
         this_token = self.tokens[self.tokens_ptr]
         self.tokens_ptr += 1
-        print("attempting to match '" + str(literal) + "' ("+t_type+") to " + this_token.matched_string + " at position " + str(self.tokens_ptr - 1))
+        #print("attempting to match '" + str(literal) + "' ("+t_type+") to " + this_token.matched_string + " at position " + str(self.tokens_ptr - 1))
         if t_type != this_token.type:
             return False
         if not literal:
@@ -40,6 +41,7 @@ class parser():
         for f in grammar[nterm]:
             self.tokens_ptr = save
             if self.match_syms(f):
+                print("Matched term " + str([k[1] for k in f]))
                 return True
         return False
 

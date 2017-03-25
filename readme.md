@@ -4,3 +4,6 @@ COOL is the Classroom Object Oriented Language. I'm going to get at least partwa
 
 This is what the lexical analyzer looks like now
 ![](http://i.imgur.com/ZzrVRWG.png)
+
+This is what the parser looks like so far
+![](http://i.imgur.com/vq3DkmY.png)
