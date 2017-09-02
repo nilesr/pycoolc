@@ -112,9 +112,11 @@ def match(f, inp):
         new_states = set() # the states we will be in after we consume the input
         c = inp[idx] # the character we're taking in right now
         for state in states:
-            for key, move in state.moves.items():
-                if key == c:
-                    new_states.add(move) # add this move to new_states if we could get there from one of our old states by consuming that exact character
+            try:
+                move = state.moves[c]
+                new_states.add(move) # add this move to new_states if we could get there from one of our old states by consuming that exact character
+            except KeyError:
+                pass
         states = new_states; # prepare to do it all over again
         idx += 1
         if len(states) == 0: # if there are no states, we can't possibly end up at a terminal state so just stop reading
